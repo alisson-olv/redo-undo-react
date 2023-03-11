@@ -1,32 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, { useState } from 'react';
+import './styles.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [targetLocation, setTargetLocation] = useState([]);
+  const [redoItens, setRedoItens] = useState([]);
+
+  const handleClick = (event) => {
+    const location = {
+      ClientX: event.pageX,
+      ClientY: event.pageY
+    }
+    setTargetLocation([...targetLocation, location]);
+  }
+
+  const handleUndo = (event) => {
+    event.stopPropagation();
+    const newUndo = [...targetLocation];
+    const newItem = newUndo.pop()
+    setTargetLocation(newUndo);
+    setRedoItens([...redoItens, newItem]);
+  }
+
+  const handleRedo = (event) => {
+    event.stopPropagation();
+    const newRedo = [...redoItens]
+    const newItem = newRedo.pop()
+    setRedoItens(newRedo);
+    setTargetLocation([...targetLocation, newItem]);
+  }
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className='box' onClick={handleClick}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+        <button className='btn' onClick={handleUndo} disabled={targetLocation.length === 0}>Undo</button>
+        <button className='btn' onClick={handleRedo} disabled={redoItens.length === 0}>Redo</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {targetLocation.map((item, index) =>
+        <span
+          key={index}
+          className='dot'
+          style={{ left: item.ClientX - 13, top: item.ClientY - 13 }}
+        />
+      )}
     </div>
   )
 }
